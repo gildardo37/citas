@@ -1,15 +1,32 @@
-import React, {Fragment, useState} from 'react';
+import React, {Fragment, useState, useEffect} from 'react';
 import Formulario from './componentes/Formulario';
 import Cita from './componentes/Cita';
 
 function App() {
 
+  //citas el local storage
+  let citasIniciales = JSON.parse(localStorage.getItem('citas'));
+  if(!citasIniciales) {
+    citasIniciales = [];
+  }
+
   //Arreglo de citas
-  const [citas, guaardarCitas] = useState([]);
+  const [citas, guardarCitas] = useState(citasIniciales);
+
+  // Use Effect para realizar ciertas operaciones cuando el state cambia
+  useEffect(() => {
+    let citasIniciales = JSON.parse(localStorage.getItem('citas'));
+    
+    if(citasIniciales) {
+      localStorage.setItem('citas', JSON.stringify(citas));
+    } else {
+      localStorage.setItem('citas', JSON.stringify());
+    }
+  }, [citas])
 
   //Funcion que tome las citas actuales y agegue nueva
   const crearCita = cita => {
-    guaardarCitas([
+    guardarCitas([
       ...citas,
       cita
     ]);
@@ -18,8 +35,11 @@ function App() {
   //Funcion que elimina una cita por su id
   const eliminarCita = id => {
     const nuevasCitas = citas.filter(cita => cita.id !== id);
-    guaardarCitas(nuevasCitas);
+    guardarCitas(nuevasCitas);
   }
+
+  //mensaje condicional
+  const titulo = citas.length === 0 ? 'No hay citas' : 'Administra tus citas';
 
   return (
     <Fragment>
@@ -32,7 +52,7 @@ function App() {
             />
           </div>
           <div className="one-half column">
-            <h2>Administra tus citas</h2>
+            <h2>{titulo}</h2>
             {citas.map(cita => (
               <Cita
                 key={cita.id}
